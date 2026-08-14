@@ -1,0 +1,111 @@
+# Manual Polymarket / Liquipedia name overrides.
+# key = liquipedia slug we store on teams.liquipedia_page
+# values = extra strings that should resolve to that team
+
+navi:
+  - natus vincere
+  - navi
+  - navi esports
+vitality:
+  - team vitality
+  - vit
+faze:
+  - faze clan
+  - faze
+g2:
+  - g2 esports
+  - g2
+mouz:
+  - mousesports
+  - mouz
+spirit:
+  - team spirit
+furia:
+  - furia esports
+  - furia
+mibr:
+  - made in brazil
+  - mibr
+ence:
+  - ence
+heroic:
+  - heroic
+liquid:
+  - team liquid
+  - liquid
+astralis:
+  - astralis
+big:
+  - berlin international gaming
+  - big
+gl:
+  - gamerlegion
+  - gamer legion
+jjh:
+  - jijiehao
+  - jijie hao
+3dmax:
+  - 3dmax
+  - 3d max
+9z:
+  - 9z
+  - 9z team
+b8:
+  - b8
+k27:
+  - k27
+parivision:
+  - parivision
+  - prv
+100t:
+  - 100 thieves
+  - 100t
+og:
+  - og
+aurora:
+  - aurora gaming
+  - aurora
+legacy:
+  - legacy
+fnatic:
+  - fnatic
+nip:
+  - ninjas in pyjamas
+  - nip
+cloud9:
+  - cloud9
+  - c9
+complexity:
+  - complexity
+  - col
+falcons:
+  - team falcons
+  - falcons
+mongolz:
+  - the mongolz
+  - mongolz
+pain:
+  - pain gaming
+  - paiN
+imperial:
+  - imperial
+  - imperial esports
+flyquest:
+  - flyquest
+betboom:
+  - betboom team
+  - betboom
+virtus:
+  - virtus.pro
+  - virtus pro
+  - vp
+tsm:
+  - tsm
+  - team solomid
+saw:
+  - saw
+ecstatic:
+  - ecstatic
+magic:
+  - magic
+  - mgc

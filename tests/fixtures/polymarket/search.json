@@ -1,0 +1,60 @@
+{
+  "events": [
+    {
+      "id": "evt-1",
+      "slug": "cs2-furia-9z-2026-08-15",
+      "title": "Counter-Strike: FURIA vs 9z (BO3) - Esports World Cup Group D",
+      "endDate": "2026-08-15T19:55:00Z",
+      "volume": 17674.66,
+      "markets": [
+        {
+          "conditionId": "0xabc",
+          "question": "Counter-Strike: FURIA vs 9z (BO3)",
+          "sportsMarketType": "moneyline",
+          "groupItemTitle": "Match Winner",
+          "outcomes": ["FURIA", "9z"],
+          "clobTokenIds": ["tok-furia", "tok-9z"],
+          "outcomePrices": ["0.65", "0.35"],
+          "bestBid": 0.64,
+          "bestAsk": 0.66,
+          "spread": 0.02,
+          "volume": 13708.26,
+          "volume24hr": 13708.26,
+          "liquidityNum": 4000,
+          "feeSchedule": {"rate": 0.05}
+        },
+        {
+          "conditionId": "0xmap",
+          "question": "Map 1 Winner",
+          "sportsMarketType": "child_moneyline",
+          "groupItemTitle": "Map 1 Winner",
+          "outcomes": ["FURIA", "9z"],
+          "clobTokenIds": ["tok-m1a", "tok-m1b"],
+          "bestAsk": 0.59,
+          "bestBid": 0.56
+        }
+      ]
+    },
+    {
+      "id": "evt-2",
+      "slug": "cs2-unknown-unknown-2026-08-15",
+      "title": "Counter-Strike: Unknown Wolves vs Mystery Foxes (BO3)",
+      "endDate": "2026-08-16T12:00:00Z",
+      "markets": [
+        {
+          "conditionId": "0xunk",
+          "question": "Unknown Wolves vs Mystery Foxes",
+          "sportsMarketType": "moneyline",
+          "groupItemTitle": "Match Winner",
+          "outcomes": ["Unknown Wolves", "Mystery Foxes"],
+          "clobTokenIds": ["tok-uw", "tok-mf"],
+          "bestBid": 0.48,
+          "bestAsk": 0.52,
+          "spread": 0.04,
+          "volume24hr": 8000,
+          "feeSchedule": {"rate": 0.05}
+        }
+      ]
+    }
+  ]
+}

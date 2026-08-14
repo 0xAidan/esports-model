@@ -24,6 +24,10 @@ That is why CS2 is the v1 title. It is also why the scanner must hide thin Chall
 
 Kalshi has real esports volume (CS2-heavy in June 2026). It is documented as a **v1.1** candidate, not built.
 
+## How we ingest (v1)
+
+`esports-model markets pull` searches Gamma (`public-search` for Counter-Strike / CS2) and stores **series winner** books only (`sportsMarketType = moneyline` or `groupItemTitle = Match Winner`). Map winners are parsed so we can ignore them on purpose. Depth comes from the CLOB book around the Gamma ask. Team names go through the identity matcher; unmatched events land in `identity_reviews` and stay quarantined.
+
 ## Fees (do not guess)
 
 Official formula from [Polymarket fees](https://docs.polymarket.com/trading/fees):

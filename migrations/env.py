@@ -11,9 +11,13 @@ from sqlalchemy import engine_from_config, event, pool
 from esports_model.db.base import Base
 from esports_model.db.models import (  # noqa: F401
     Event,
+    IdentityReview,
     IngestCursor,
     MapResult,
+    Market,
+    MarketEvent,
     Match,
+    OrderBookSnapshot,
     Player,
     RosterEntry,
     Team,

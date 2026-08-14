@@ -1,0 +1,28 @@
+{{Infobox league
+|name=Esports World Cup 2026
+|type=Offline
+|country=France
+|city=Paris
+|liquipediatier=S-Tier
+|sdate=2026-08-12
+|edate=2026-08-23
+|game=cs2
+}}
+
+{{Match
+    |opponent1={{TeamOpponent|jjh}}|opponent2={{TeamOpponent|gl}}
+    |date=August 13, 2026 - 13:00 {{Abbr/CEST}} |finished=true
+    |map1={{Map|map=Dust II|finished=true
+        |t1firstside=t|t1t=2|t1ct=1|t2t=3|t2ct=10}}
+    |map2={{Map|map=Ancient|finished=true
+        |t1firstside=ct|t1t=5|t1ct=3|t2t=9|t2ct=4}}
+    |map3={{Map|map=Mirage|finished=skip}}
+    |hltv=2396575
+    }}
+
+{{Match
+    |opponent1={{TeamOpponent|BIG}}|opponent2={{TeamOpponent|spirit}}
+    |date=August 15, 2026 - 18:50 {{Abbr/CEST}} |finished=
+    |map1={{Map|map=|finished=}}
+    |hltv=2396591
+    }}

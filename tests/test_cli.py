@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 from esports_model.cli import main
 
 
@@ -22,15 +20,21 @@ def test_init_db(tmp_path, monkeypatch) -> None:
     assert db.exists()
 
 
-def test_sync_stub_is_honest(tmp_path, capsys) -> None:
+def test_sync_refuses_example_email(tmp_path, monkeypatch) -> None:
     db = tmp_path / "esports.db"
     url = f"sqlite:///{db}"
+    monkeypatch.setenv("LIQUIPEDIA_CONTACT_EMAIL", "you@example.com")
+    monkeypatch.setenv("LIQUIPEDIA_USER_AGENT", "")
+    from esports_model.config import reset_settings
+
+    reset_settings()
     assert main(["init-db", "--database-url", url]) == 0
-    capsys.readouterr()
-    assert main(["sync", "--profile", "quick", "--database-url", url]) == 0
-    payload = json.loads(capsys.readouterr().out)
-    assert payload["implemented"] is False
-    assert payload["profile"] == "quick"
+    try:
+        main(["sync", "--profile", "quick", "--database-url", url])
+    except RuntimeError as exc:
+        assert "LIQUIPEDIA_CONTACT_EMAIL" in str(exc)
+    else:
+        raise AssertionError("expected sync to refuse example.com contact email")
 
 
 def test_unknown_profile_fails(tmp_path) -> None:

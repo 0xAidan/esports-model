@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from sqlalchemy import (
     Boolean,
@@ -19,6 +19,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from esports_model.db.base import Base
 
 
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 class Team(Base):
     __tablename__ = "teams"
 
@@ -26,7 +30,7 @@ class Team(Base):
     liquipedia_page: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(255), index=True)
     short_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     home_matches: Mapped[list[Match]] = relationship(
         back_populates="team1",
@@ -45,7 +49,7 @@ class Player(Base):
     liquipedia_page: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(255), index=True)
     nationality: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
 class RosterEntry(Base):
@@ -80,7 +84,7 @@ class Event(Base):
     region: Mapped[str | None] = mapped_column(String(64), nullable=True)
     game_version: Mapped[str] = mapped_column(String(16), default="cs2")
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     matches: Mapped[list[Match]] = relationship(back_populates="event")
 
@@ -104,7 +108,7 @@ class Match(Base):
     game_version: Mapped[str] = mapped_column(String(16), default="cs2", index=True)
     offline: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="completed", index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     event: Mapped[Event | None] = relationship(back_populates="matches")
     team1: Mapped[Team] = relationship(foreign_keys=[team1_id], back_populates="home_matches")
@@ -136,4 +140,4 @@ class IngestCursor(Base):
     source: Mapped[str] = mapped_column(String(64), index=True)
     cursor_key: Mapped[str] = mapped_column(String(64))
     cursor_value: Mapped[str] = mapped_column(Text)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

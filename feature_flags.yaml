@@ -1,6 +1,7 @@
 # Knobs the scanner and Kelly helper read. Change these; do not edit code.
 
 # Stake advice = kelly_fractional * full-Kelly * bankroll, then hard-capped.
+bankroll_usd: 1000
 kelly_fractional: 0.25
 kelly_max_fraction_of_bankroll: 0.05
 

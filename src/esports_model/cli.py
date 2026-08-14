@@ -57,8 +57,14 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("--json", action="store_true")
 
     serve = sub.add_parser("serve", help="Snapshot API + small operator table")
+    _add_db_flag(serve)
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
+    serve.add_argument(
+        "--no-refresh",
+        action="store_true",
+        help="Do not pull Polymarket on a timer (HTML still loads the last snapshot)",
+    )
 
     coverage = sub.add_parser("coverage", help="Write a match-history coverage audit")
     _add_db_flag(coverage)
@@ -144,7 +150,11 @@ def cmd_serve(args: argparse.Namespace) -> int:
 
     from esports_model.api.app import create_app
 
-    uvicorn.run(create_app(), host=args.host, port=args.port)
+    app = create_app(
+        database_url=_resolve_url(args),
+        enable_refresh=not args.no_refresh,
+    )
+    uvicorn.run(app, host=args.host, port=args.port)
     return 0
 
 

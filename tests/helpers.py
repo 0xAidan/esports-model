@@ -2,7 +2,17 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from esports_model.db.models import Event, MapResult, Match, Team
+from sqlalchemy import select
+
+from esports_model.db.models import (
+    Event,
+    MapResult,
+    Market,
+    MarketEvent,
+    Match,
+    OrderBookSnapshot,
+    Team,
+)
 from esports_model.db.session import init_db, session_scope
 
 
@@ -60,3 +70,82 @@ def seed_linear_matches(
                     winner_id=winner.id,
                 )
             )
+
+
+def seed_upcoming_book(
+    database_url: str,
+    *,
+    identity_status: str = "matched",
+    identity_confidence: str = "high",
+    ask: float = 0.40,
+    bid: float = 0.38,
+    spread: float = 0.02,
+    volume: float = 20000.0,
+    depth: float = 500.0,
+    hours_ahead: float = 12.0,
+    token_id: str = "tok-alpha",
+    attach_match: bool = True,
+    now: datetime | None = None,
+) -> dict[str, int | None]:
+    clock = now or datetime(2026, 8, 14, 12, 0, 0)
+    with session_scope(database_url) as session:
+        teams = list(session.scalars(select(Team).order_by(Team.id)))
+        event = session.scalar(select(Event))
+        if len(teams) < 2 or event is None:
+            raise RuntimeError("seed_linear_matches must run first")
+        alpha, bravo = teams[0], teams[1]
+        match_id = None
+        if attach_match:
+            upcoming = Match(
+                liquipedia_match_id=f"upcoming:{token_id}",
+                event_id=event.id,
+                team1_id=alpha.id,
+                team2_id=bravo.id,
+                winner_id=None,
+                start_time=clock + timedelta(hours=hours_ahead),
+                format="bo3",
+                game_version="cs2",
+                offline=True,
+                status="upcoming",
+            )
+            session.add(upcoming)
+            session.flush()
+            match_id = upcoming.id
+        market_event = MarketEvent(
+            provider="polymarket",
+            provider_event_id=f"evt-{token_id}",
+            slug=f"cs2-{token_id}",
+            title="Counter-Strike: Alpha vs Bravo (BO3)",
+            start_time=clock + timedelta(hours=hours_ahead),
+            volume=volume,
+        )
+        session.add(market_event)
+        session.flush()
+        market = Market(
+            provider="polymarket",
+            event_id=market_event.id,
+            match_id=match_id,
+            condition_id=f"cond-{token_id}",
+            question="Alpha vs Bravo",
+            market_type="moneyline",
+            outcome_name="Alpha",
+            token_id=token_id,
+            team_id=alpha.id if identity_confidence == "high" else None,
+            identity_confidence=identity_confidence,
+            identity_status=identity_status,
+        )
+        session.add(market)
+        session.flush()
+        session.add(
+            OrderBookSnapshot(
+                market_id=market.id,
+                bid=bid,
+                ask=ask,
+                spread=spread,
+                depth_usd=depth,
+                volume_24h=volume,
+                volume_lifetime=volume,
+                fee_rate=0.05,
+            )
+        )
+        return {"match_id": match_id, "team_id": alpha.id, "market_id": market.id}

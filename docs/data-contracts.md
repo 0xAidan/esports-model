@@ -20,6 +20,8 @@ A **map** row is one played map inside that series. Map-pool features for match 
 
 Every feature row is tagged with `as_of = match.start_time`. If a computation reads a later match, that is a bug. The fixture test in `tests/features/` is the contract.
 
+v1 features (team1 minus team2 unless noted): Elo, last-5 / last-10 form, map win rate on maps with 3+ prior games, head-to-head, rest days, `log1p` of the smaller prior-match count, event tier flags, series format flags, LAN flag, roster stability (days since newest active join; 0 if we have no roster rows).
+
 ## Model probability
 
 `p` is a calibrated P(team1 wins the series). Team1 is the Liquipedia “left” team, stored as `matches.team1_id`.

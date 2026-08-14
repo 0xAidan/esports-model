@@ -1,0 +1,44 @@
+# Named sync sizes. Pick one with: esports-model sync --profile <name>
+#
+# quick          — small recent slice so a first run finishes in minutes
+# default        — about 18 months of S-tier and A-tier matches
+# full_backfill  — CS2 era plus CS:GO warmup from 2020 (run more than once)
+# upcoming       — schedule only, no historical results
+
+quick:
+  lookback_days: 45
+  tiers: ["S-Tier", "A-Tier"]
+  include_upcoming: true
+  include_maps: true
+  include_rosters: false
+  game_versions: ["cs2"]
+  max_matches_per_run: 80
+
+default:
+  lookback_days: 550
+  tiers: ["S-Tier", "A-Tier"]
+  include_upcoming: true
+  include_maps: true
+  include_rosters: true
+  game_versions: ["cs2"]
+  max_matches_per_run: 400
+
+full_backfill:
+  lookback_days: 0
+  start_date: "2020-01-01"
+  tiers: ["S-Tier", "A-Tier", "B-Tier"]
+  include_upcoming: true
+  include_maps: true
+  include_rosters: true
+  game_versions: ["csgo", "cs2"]
+  max_matches_per_run: 800
+
+upcoming:
+  lookback_days: 0
+  tiers: ["S-Tier", "A-Tier", "B-Tier"]
+  include_upcoming: true
+  upcoming_only: true
+  include_maps: false
+  include_rosters: true
+  game_versions: ["cs2"]
+  max_matches_per_run: 200

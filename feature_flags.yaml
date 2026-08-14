@@ -1,0 +1,28 @@
+# Knobs the scanner and Kelly helper read. Change these; do not edit code.
+
+# Stake advice = kelly_fractional * full-Kelly * bankroll, then hard-capped.
+kelly_fractional: 0.25
+kelly_max_fraction_of_bankroll: 0.05
+
+# Minimum net EV after fees + uncertainty haircut before a row can be BET.
+min_ev: 0.03
+
+# Liquidity gates. Fail any of these and the row is WATCH, never BET.
+min_volume_usd: 5000
+max_spread: 0.06
+min_depth_usd: 200
+depth_cents: 0.03
+
+# Only scan matches that start inside this window.
+min_hours_to_start: 0.25
+max_hours_to_start: 168
+
+# Do not BET a team with fewer prior completed matches than this.
+min_prior_matches: 8
+
+# Subtracted from the raw model probability before EV. Bigger = more cautious.
+uncertainty_haircut: 0.02
+
+# Live refresh cadence in seconds.
+refresh_upcoming_sec: 120
+refresh_near_start_sec: 30

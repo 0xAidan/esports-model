@@ -22,6 +22,18 @@ def test_alias_is_high_confidence(tmp_path) -> None:
         assert hit.team_id is not None
 
 
+def test_db_team_name_is_high_without_yaml(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'id.db'}"
+    init_db(url)
+    with session_scope(url) as session:
+        session.add(Team(liquipedia_page="alpha-squad", name="Alpha Squad"))
+        session.flush()
+        hit = match_team_name(session, "Alpha Squad")
+        assert hit.confidence == "high"
+        assert hit.via == "db"
+        assert hit.team_id is not None
+
+
 def test_unknown_name_is_not_high(tmp_path) -> None:
     url = f"sqlite:///{tmp_path / 'id.db'}"
     init_db(url)

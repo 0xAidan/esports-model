@@ -15,6 +15,8 @@ def test_feature_flags_have_gates() -> None:
     flags = feature_flags()
     assert flags["kelly_fractional"] == 0.25
     assert flags["bankroll_usd"] == 1000
+    assert flags["refresh_schedule_sec"] == 900
+    assert flags["min_eligible_for_upcoming"] == 80
     assert flags["min_ev"] > 0
     assert flags["min_volume_usd"] > 0
     assert flags["max_spread"] > 0

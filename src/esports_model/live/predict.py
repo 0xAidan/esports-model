@@ -15,6 +15,7 @@ from esports_model.features.spec import FeatureRow
 from esports_model.model.train import eligible_rows, fit_logistic
 
 PredictFn = Callable[[FeatureRow], float]
+DEFAULT_MODEL_PATH = "data/model_logistic.joblib"
 
 
 def predict_with_model(model: LogisticRegression, row: FeatureRow) -> float:
@@ -55,8 +56,8 @@ def resolve_predictor(
 ) -> PredictFn | None:
     if override is not None:
         return override
-    if model_path:
-        saved = load_saved_predictor(Path(model_path))
-        if saved is not None:
-            return saved
+    path = Path(model_path) if model_path else Path(DEFAULT_MODEL_PATH)
+    saved = load_saved_predictor(path)
+    if saved is not None:
+        return saved
     return fit_predictor(session)

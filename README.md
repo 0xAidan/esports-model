@@ -16,22 +16,30 @@ You do **not** need a Polymarket API key. You do **not** need Postgres. You do *
 
 ## Install and run
 
+If `git config user.email` is a real address (not `example.com`):
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env
+esports-model bootstrap
+esports-model install-agent
 ```
 
-Open `.env` and put your real email in `LIQUIPEDIA_CONTACT_EMAIL` and in `LIQUIPEDIA_USER_AGENT`.
+Then open `http://127.0.0.1:8000`. Leave this Mac awake while it is plugged in. History fills across ticks (Liquipedia allows one request every 2 seconds, so a full library takes hours). You do not type sync / train / pull / scan again.
 
-Then:
+If git has no real email, put one line in `.env` once:
+
+```text
+LIQUIPEDIA_CONTACT_EMAIL=you@your-real-domain.com
+```
+
+Then run `esports-model bootstrap` again. We cannot invent that address. Liquipedia requires it.
+
+Manual one-shot commands still work:
 
 ```bash
-esports-model init-db
-esports-model sync --profile quick
-esports-model backtest --omit-predictions
-esports-model markets pull
+esports-model tick
 esports-model scan
 ```
 
@@ -39,19 +47,21 @@ What each command does:
 
 | Command | Meaning |
 |---|---|
+| `bootstrap` | Writes `.env` from git email and creates the database |
+| `install-agent` | Starts `serve` at login on this Mac |
+| `tick` | One pass: Liquipedia sync, Polymarket pull, train if needed, scan |
 | `init-db` | Creates a local SQLite file at `data/esports.db` |
 | `sync --profile quick` | Downloads a small recent slice of CS2 matches from Liquipedia |
 | `backtest` | Walks through history in time order and scores the model |
 | `markets pull` | Fetches current Polymarket CS2 markets |
 | `scan` | Prints model p vs market p, net EV, and BET / WATCH / PASS |
+| `serve` | Tiny table at `http://127.0.0.1:8000` (also what the login agent runs) |
 
-To leave a tiny web table open:
+The page rebuilds the table from `/snapshot.json` on a timer. **Refresh markets** runs a full tick. Use `serve --no-refresh` if you only want to look at the last file.
 
-```bash
-esports-model serve
-```
+### Leave the Mac on
 
-Then open `http://127.0.0.1:8000`. The page rereads the snapshot on a timer. The **Refresh markets** button pulls Polymarket again. Use `--no-refresh` if you only want to look at the last file.
+System Settings → Energy (or Battery): turn on **Prevent automatic sleeping when the display is off** while the laptop is plugged in. The login agent restarts `serve` after reboot, but a sleeping Mac cannot fetch new matches.
 
 ## How to read the scan table
 

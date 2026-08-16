@@ -8,8 +8,12 @@ import sys
 from collections.abc import Sequence
 
 from esports_model import __version__
-from esports_model.config import get_settings, profile, reset_settings
+from esports_model.config import feature_flags, get_settings, profile, reset_settings
 from esports_model.db.session import init_db
+from esports_model.jobs.agent import install_agent
+from esports_model.jobs.bootstrap import run_bootstrap
+from esports_model.jobs.tick import run_tick
+from esports_model.live.predict import DEFAULT_MODEL_PATH
 
 
 def _add_db_flag(parser: argparse.ArgumentParser) -> None:
@@ -69,6 +73,21 @@ def build_parser() -> argparse.ArgumentParser:
     coverage = sub.add_parser("coverage", help="Write a match-history coverage audit")
     _add_db_flag(coverage)
     coverage.add_argument("--output", default="output/coverage.json")
+
+    tick = sub.add_parser("tick", help="One unattended pass: sync, pull, train, scan")
+    _add_db_flag(tick)
+    tick.add_argument("--skip-sync", action="store_true")
+    tick.add_argument("--skip-pull", action="store_true")
+
+    bootstrap = sub.add_parser("bootstrap", help="Create .env from git email and init-db")
+    _add_db_flag(bootstrap)
+
+    agent = sub.add_parser("install-agent", help="Install a macOS login agent for serve")
+    agent.add_argument(
+        "--no-load",
+        action="store_true",
+        help="Write the plist only; do not call launchctl",
+    )
 
     return parser
 
@@ -137,7 +156,11 @@ def cmd_markets(args: argparse.Namespace) -> int:
 def cmd_scan(args: argparse.Namespace) -> int:
     from esports_model.live.scan import run_scan
 
-    snapshot = run_scan(database_url=_resolve_url(args))
+    flags = feature_flags()
+    snapshot = run_scan(
+        database_url=_resolve_url(args),
+        model_path=str(flags.get("model_path") or DEFAULT_MODEL_PATH),
+    )
     if args.json:
         print(json.dumps(snapshot, indent=2, default=str))
         return 0
@@ -155,6 +178,28 @@ def cmd_serve(args: argparse.Namespace) -> int:
         enable_refresh=not args.no_refresh,
     )
     uvicorn.run(app, host=args.host, port=args.port)
+    return 0
+
+
+def cmd_tick(args: argparse.Namespace) -> int:
+    snapshot = run_tick(
+        database_url=_resolve_url(args),
+        sync_liquipedia=not args.skip_sync,
+        pull_books=not args.skip_pull,
+    )
+    print(json.dumps(snapshot.get("tick_report") or snapshot, indent=2, default=str))
+    return 0
+
+
+def cmd_bootstrap(args: argparse.Namespace) -> int:
+    summary = run_bootstrap(database_url=getattr(args, "database_url", None))
+    print(json.dumps(summary, indent=2, default=str))
+    return 0
+
+
+def cmd_install_agent(args: argparse.Namespace) -> int:
+    summary = install_agent(load=not args.no_load)
+    print(json.dumps(summary, indent=2, default=str))
     return 0
 
 
@@ -186,6 +231,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return cmd_serve(args)
     if command == "coverage":
         return cmd_coverage(args)
+    if command == "tick":
+        return cmd_tick(args)
+    if command == "bootstrap":
+        return cmd_bootstrap(args)
+    if command == "install-agent":
+        return cmd_install_agent(args)
     never: str = command
     raise SystemExit(f"unhandled command: {never}")
 

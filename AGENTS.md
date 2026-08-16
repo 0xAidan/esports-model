@@ -25,6 +25,8 @@ Live Liquipedia / Polymarket calls are **not** required for pytest. Parsers and 
 ## Commands that must keep working
 
 ```bash
+esports-model bootstrap
+esports-model tick
 esports-model init-db
 esports-model sync --profile quick
 esports-model backtest --omit-predictions
@@ -56,5 +58,6 @@ src/esports_model/
   markets/      Polymarket
   ev/           fees, EV, Kelly
   live/         refresh + snapshot
+  jobs/         tick, bootstrap, macOS agent
   api/          FastAPI
 ```

@@ -11,8 +11,10 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from esports_model.config import feature_flags, get_settings
+from esports_model.ingest.sync import ClientFactory as LiquipediaFactory
+from esports_model.jobs.tick import run_tick
 from esports_model.live.html import render_operator_html
-from esports_model.live.refresh import refresh_once, start_refresh_thread
+from esports_model.live.refresh import start_refresh_thread
 from esports_model.live.scan import run_scan
 from esports_model.live.snapshot import default_snapshot_path, read_snapshot
 from esports_model.markets.pull import ClientFactory
@@ -25,6 +27,7 @@ def create_app(
     output_dir: str | Path | None = None,
     enable_refresh: bool = False,
     client_factory: ClientFactory | None = None,
+    liquipedia_factory: LiquipediaFactory | None = None,
 ) -> FastAPI:
     settings = get_settings()
     db_url = database_url or settings.esports_database_url
@@ -44,6 +47,8 @@ def create_app(
                 snapshot_path=snap,
                 output_dir=out,
                 stop_event=stop_event,
+                client_factory=client_factory,
+                liquipedia_factory=liquipedia_factory,
             )
         yield
         stop_event.set()
@@ -66,10 +71,12 @@ def create_app(
 
     @app.post("/refresh")
     def refresh() -> JSONResponse:
-        payload = refresh_once(
+        payload = run_tick(
             database_url=db_url,
-            pull=True,
-            client_factory=client_factory,
+            pull_books=True,
+            sync_liquipedia=True,
+            market_factory=client_factory,
+            liquipedia_factory=liquipedia_factory,
             snapshot_path=snap,
             output_dir=out,
         )

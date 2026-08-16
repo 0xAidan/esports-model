@@ -44,6 +44,24 @@ def load_aliases() -> dict[str, set[str]]:
     return mapping
 
 
+def _team_keys(team: Team) -> set[str]:
+    keys = {
+        normalize_name(team.liquipedia_page),
+        normalize_name(team.name),
+        normalize_name(team.short_name or ""),
+    }
+    keys.discard("")
+    return keys
+
+
+def _db_name_index(teams: list[Team]) -> dict[str, Team]:
+    index: dict[str, Team] = {}
+    for team in teams:
+        for key in _team_keys(team):
+            index.setdefault(key, team)
+    return index
+
+
 def _alias_slug(normalized: str) -> str | None:
     for slug, names in load_aliases().items():
         if normalized in names or normalized == slug:
@@ -57,6 +75,11 @@ def match_team_name(session: Session, raw: str) -> NameMatch:
         return NameMatch(None, None, raw, normalized, "low", 0.0, "empty")
 
     teams = list(session.scalars(select(Team)))
+    by_key = _db_name_index(teams)
+    hit = by_key.get(normalized)
+    if hit is not None:
+        return NameMatch(hit.id, hit.liquipedia_page, raw, normalized, "high", 1.0, "db")
+
     alias_slug = _alias_slug(normalized)
     if alias_slug:
         for team in teams:
@@ -65,12 +88,7 @@ def match_team_name(session: Session, raw: str) -> NameMatch:
 
     best: NameMatch | None = None
     for team in teams:
-        candidates = {
-            normalize_name(team.liquipedia_page),
-            normalize_name(team.name),
-            normalize_name(team.short_name or ""),
-        }
-        candidates.discard("")
+        candidates = _team_keys(team)
         for candidate in candidates:
             if candidate == normalized:
                 return NameMatch(team.id, team.liquipedia_page, raw, normalized, "high", 1.0, "exact")

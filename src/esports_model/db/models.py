@@ -141,3 +141,71 @@ class IngestCursor(Base):
     cursor_key: Mapped[str] = mapped_column(String(64))
     cursor_value: Mapped[str] = mapped_column(Text)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class MarketEvent(Base):
+    __tablename__ = "market_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    provider: Mapped[str] = mapped_column(String(32), default="polymarket")
+    provider_event_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    slug: Mapped[str] = mapped_column(String(255), index=True)
+    title: Mapped[str] = mapped_column(String(512))
+    start_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    volume: Mapped[float | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    markets: Mapped[list[Market]] = relationship(back_populates="event")
+
+
+class Market(Base):
+    __tablename__ = "markets"
+    __table_args__ = (
+        UniqueConstraint("provider", "token_id", name="uq_markets_token"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    provider: Mapped[str] = mapped_column(String(32), default="polymarket")
+    event_id: Mapped[int] = mapped_column(ForeignKey("market_events.id"), index=True)
+    match_id: Mapped[int | None] = mapped_column(ForeignKey("matches.id"), nullable=True)
+    condition_id: Mapped[str] = mapped_column(String(128), index=True)
+    question: Mapped[str] = mapped_column(String(512))
+    market_type: Mapped[str] = mapped_column(String(64), default="moneyline")
+    outcome_name: Mapped[str] = mapped_column(String(128))
+    token_id: Mapped[str] = mapped_column(String(128))
+    team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"), nullable=True)
+    identity_confidence: Mapped[str] = mapped_column(String(16), default="low")
+    identity_status: Mapped[str] = mapped_column(String(24), default="unmatched", index=True)
+    identity_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    event: Mapped[MarketEvent] = relationship(back_populates="markets")
+    books: Mapped[list[OrderBookSnapshot]] = relationship(back_populates="market")
+
+
+class OrderBookSnapshot(Base):
+    __tablename__ = "orderbook_snapshots"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    market_id: Mapped[int] = mapped_column(ForeignKey("markets.id"), index=True)
+    bid: Mapped[float | None] = mapped_column(nullable=True)
+    ask: Mapped[float | None] = mapped_column(nullable=True)
+    spread: Mapped[float | None] = mapped_column(nullable=True)
+    depth_usd: Mapped[float | None] = mapped_column(nullable=True)
+    volume_24h: Mapped[float | None] = mapped_column(nullable=True)
+    volume_lifetime: Mapped[float | None] = mapped_column(nullable=True)
+    fee_rate: Mapped[float] = mapped_column(default=0.05)
+    captured_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+    market: Mapped[Market] = relationship(back_populates="books")
+
+
+class IdentityReview(Base):
+    __tablename__ = "identity_reviews"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    market_event_id: Mapped[int] = mapped_column(ForeignKey("market_events.id"), index=True)
+    left_name: Mapped[str] = mapped_column(String(128))
+    right_name: Mapped[str] = mapped_column(String(128))
+    reason: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

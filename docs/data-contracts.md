@@ -84,6 +84,19 @@ Defaults: `kelly_fractional = 0.25`, cap `0.05` of bankroll. Never larger than d
 
 If `p_star ≤ cost`, full Kelly is 0. We do not emit a negative “short” in v1.
 
+## Identity
+
+Polymarket team strings are matched to Liquipedia `teams` rows.
+
+1. Normalize (lowercase, strip `esports` / `team` / similar noise).
+2. Check `src/esports_model/identity/aliases.yaml`.
+3. Exact name / slug match.
+4. Fuzzy `SequenceMatcher` only after that.
+
+A **pair** is high only if **both** sides are high and they resolve to two different teams. Anything else is **quarantine**. Teams that match but have no Liquipedia series in a ±36 hour window are **watch**, not BET.
+
+Unmatched names never become BET. Add an alias if a real team is stuck in quarantine.
+
 ## Actions
 
 | Action | Rule |

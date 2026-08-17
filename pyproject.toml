@@ -41,6 +41,7 @@ where = ["src"]
 [tool.setuptools.package-data]
 "esports_model" = ["py.typed"]
 "esports_model.model" = ["registry.yaml"]
+"esports_model.identity" = ["aliases.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

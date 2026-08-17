@@ -1,0 +1,22 @@
+name: logistic_v1
+version: "1.0.0"
+algorithm: logistic_regression
+calibration: platt_on_prior_oos
+features:
+  - elo_diff
+  - form5_diff
+  - form10_diff
+  - map_wr_diff
+  - h2h_diff
+  - rest_days_diff
+  - prior_log_min
+  - tier_s
+  - tier_a
+  - is_bo1
+  - is_bo3
+  - is_bo5
+  - is_offline
+  - roster_stability_diff
+notes: >
+  Fit only on matches strictly before the prediction time.
+  Platt scaling uses previous walk-forward raw scores, never the current fold.

@@ -23,6 +23,8 @@ We only ingest what we can defend. If a source needs a paid key, it is out of v1
 
 We do **not** use the commercial LiquipediaDB / `api.liquipedia.net` REST product. That one is enterprise / limited free and is a different contract.
 
+v1 reads tournament **wikitext** through `action=query&prop=revisions` (1 request / 2 seconds) and parses `{{Infobox league}}` plus `{{Match}}` templates. We do not scrape generated HTML pages — Liquipedia forbids automated access to non-API endpoints. The old “upcoming matches” page is a Lua widget, so upcoming rows come from `Category:Live Tournaments` instead.
+
 Set `LIQUIPEDIA_CONTACT_EMAIL` in `.env`. The client will refuse to run without it.
 
 ### Polymarket Gamma + CLOB — primary market

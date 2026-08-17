@@ -38,6 +38,21 @@ def build_feature_row(session: Session, match: Match) -> FeatureRow | None:
     return _features_from_history(session, match, history)
 
 
+def build_live_feature_row(
+    session: Session,
+    match: Match,
+    history: list[Match],
+) -> FeatureRow | None:
+    if match.start_time is None:
+        return None
+    priors = [
+        row
+        for row in history
+        if row.start_time is not None and _is_strictly_before(row, match)
+    ]
+    return _features_from_history(session, match, priors)
+
+
 def build_feature_table(session: Session) -> list[FeatureRow]:
     matches = load_completed_matches(session)
     rows: list[FeatureRow] = []
@@ -207,4 +222,11 @@ def attach_maps(session: Session, matches: list[Match]) -> None:
         match.maps = by_match.get(match.id, [])
 
 
-__all__ = ["FEATURE_NAMES", "build_feature_row", "build_feature_table", "attach_maps"]
+__all__ = [
+    "FEATURE_NAMES",
+    "attach_maps",
+    "build_feature_row",
+    "build_feature_table",
+    "build_live_feature_row",
+    "load_completed_matches",
+]

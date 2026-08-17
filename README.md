@@ -51,7 +51,7 @@ To leave a tiny web table open:
 esports-model serve
 ```
 
-Then open `http://127.0.0.1:8000`.
+Then open `http://127.0.0.1:8000`. The page rereads the snapshot on a timer. The **Refresh markets** button pulls Polymarket again. Use `--no-refresh` if you only want to look at the last file.
 
 ## How to read the scan table
 

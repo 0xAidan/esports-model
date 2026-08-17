@@ -2,7 +2,7 @@
 
 ## What this is
 
-An always-on (if you leave `serve` running) CS2 research scanner.
+An always-on CS2 research scanner. On a Mac, `esports-model install-agent` starts it at login. The laptop still has to stay awake.
 
 It:
 
@@ -35,4 +35,6 @@ If the model is wrong, the scanner will be wrong. If the market is efficient, yo
 
 ## Intended audience
 
-You. One operator, one laptop or small server, iterating on a model. If you do not understand a number on the scan table, the README explains it. If the README is still unclear, that is a bug in the docs.
+You. One operator, one laptop, iterating on a model. If you do not understand a number on the scan table, the README explains it. If the README is still unclear, that is a bug in the docs.
+
+Leave the Mac plugged in and awake. `tick` / `serve` keep Liquipedia and Polymarket current. BET is still advice. Nothing here places an order.

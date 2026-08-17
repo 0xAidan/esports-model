@@ -59,7 +59,7 @@ def render_operator_html(snapshot: dict[str, Any], *, refresh_sec: int) -> str:
       — {escape(detail)}
       <span class="block text-xs opacity-80">Updated {escape(generated)}</span>
     </p>
-    <p class="mb-3 text-sm text-slate-300">
+    <p id="counts" class="mb-3 text-sm text-slate-300">
       BET {int(counts.get("BET", 0))}
       · WATCH {int(counts.get("WATCH", 0))}
       · PASS {int(counts.get("PASS", 0))}
@@ -106,19 +106,78 @@ def render_operator_html(snapshot: dict[str, Any], *, refresh_sec: int) -> str:
         handleRefresh();
       }}
     }};
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+    const formatNum = (value, signed) => {{
+      if (value === null || value === undefined) return "—";
+      const number = Number(value);
+      const text = number.toFixed(3);
+      if (signed && number >= 0) return "+" + text;
+      return text;
+    }};
+    const formatMoney = (value) => {{
+      if (value === null || value === undefined) return "—";
+      return String(Math.round(Number(value)));
+    }};
+    const rowClass = (action) => {{
+      if (action === "BET") return "bg-emerald-950/40";
+      if (action === "WATCH") return "bg-amber-950/20";
+      if (action === "quarantine") return "bg-rose-950/30";
+      return "";
+    }};
+    const handleApplySnapshot = (payload) => {{
+      const node = document.getElementById("diagnostic");
+      if (node && payload.diagnostic) {{
+        node.innerHTML =
+          "<span class=\\"font-semibold\\">" + escapeHtml(payload.diagnostic) + "</span> — " +
+          escapeHtml(payload.diagnostic_detail || "") +
+          "<span class=\\"block text-xs opacity-80\\">Updated " +
+          escapeHtml(payload.generated_at || "") + "</span>";
+      }}
+      const counts = payload.counts || {{}};
+      const countNode = document.getElementById("counts");
+      if (countNode) {{
+        countNode.textContent =
+          "BET " + (counts.BET || 0) +
+          " · WATCH " + (counts.WATCH || 0) +
+          " · PASS " + (counts.PASS || 0) +
+          " · quarantine " + (counts.quarantine || 0);
+      }}
+      const body = document.getElementById("scan-body");
+      if (!body) return;
+      const rows = payload.rows || [];
+      if (!rows.length) {{
+        body.innerHTML =
+          '<tr><td colspan="10" class="px-3 py-6 text-center text-slate-400">' +
+          "No series books in the snapshot yet." +
+          "</td></tr>";
+        return;
+      }}
+      body.innerHTML = rows.map((row) => {{
+        const action = row.action || "WATCH";
+        return (
+          "<tr class='" + rowClass(action) + "'>" +
+          "<td class='px-3 py-2 font-medium'>" + escapeHtml(row.side || "-") + "</td>" +
+          "<td class='px-3 py-2'>" + escapeHtml(row.opponent || "-") + "</td>" +
+          "<td class='px-3 py-2'>" + formatNum(row.model_p, false) + "</td>" +
+          "<td class='px-3 py-2'>" + formatNum(row.ask, false) + "</td>" +
+          "<td class='px-3 py-2'>" + formatNum(row.ev_net, true) + "</td>" +
+          "<td class='px-3 py-2'>" + formatMoney(row.volume) + "</td>" +
+          "<td class='px-3 py-2'>" + formatNum(row.spread, false) + "</td>" +
+          "<td class='px-3 py-2'>" + formatMoney(row.depth_usd) + "</td>" +
+          "<td class='px-3 py-2 font-semibold'>" + escapeHtml(action) + "</td>" +
+          "<td class='px-3 py-2'>" + formatMoney(row.stake_usd) + "</td>" +
+          "</tr>"
+        );
+      }}).join("");
+    }};
     window.setInterval(() => {{
       fetch("/snapshot.json")
         .then((response) => response.json())
-        .then((payload) => {{
-          const node = document.getElementById("diagnostic");
-          if (node && payload.diagnostic) {{
-            node.innerHTML =
-              "<span class=\\"font-semibold\\">" + payload.diagnostic + "</span> — " +
-              (payload.diagnostic_detail || "") +
-              "<span class=\\"block text-xs opacity-80\\">Updated " +
-              (payload.generated_at || "") + "</span>";
-          }}
-        }})
+        .then((payload) => handleApplySnapshot(payload))
         .catch(() => {{}});
     }}, REFRESH_SEC * 1000);
   </script>

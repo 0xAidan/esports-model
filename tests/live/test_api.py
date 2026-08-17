@@ -6,6 +6,7 @@ from esports_model.api.app import create_app
 from esports_model.db.models import Team
 from esports_model.db.session import init_db, session_scope
 from esports_model.live.refresh import refresh_once
+from tests.ingest.test_sync import FIXTURE, FakeClient
 from tests.markets.test_pull import FakePolymarket
 
 
@@ -26,6 +27,8 @@ def test_health_and_html_table(tmp_path) -> None:
         page = client.get("/")
         assert page.status_code == 200
         assert "handleRefresh" in page.text
+        assert "handleApplySnapshot" in page.text
+        assert "scan-body" in page.text
         assert "<table" in page.text
         assert "role=\"status\"" in page.text
         snap = client.get("/snapshot.json")
@@ -45,6 +48,7 @@ def test_refresh_endpoint_uses_injected_client(tmp_path) -> None:
         output_dir=tmp_path / "output",
         enable_refresh=False,
         client_factory=FakePolymarket,
+        liquipedia_factory=lambda: FakeClient(FIXTURE.read_text(encoding="utf-8")),
     )
     with TestClient(app) as client:
         response = client.post("/refresh")

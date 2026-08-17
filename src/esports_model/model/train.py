@@ -37,6 +37,13 @@ def fit_logistic(rows: list[FeatureRow]) -> LogisticRegression:
     return model
 
 
+def count_eligible(database_url: str, min_prior_matches: int | None = None) -> int:
+    init_db(database_url)
+    min_prior = _min_prior(min_prior_matches)
+    with session_scope(database_url) as session:
+        return len(eligible_rows(build_feature_table(session), min_prior))
+
+
 def train_model(
     *,
     database_url: str,

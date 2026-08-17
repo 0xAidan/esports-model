@@ -27,3 +27,10 @@ uncertainty_haircut: 0.02
 # Live refresh cadence in seconds.
 refresh_upcoming_sec: 120
 refresh_near_start_sec: 30
+refresh_schedule_sec: 900
+
+# Below this many eligible labeled matches, each tick resumes history sync.
+min_eligible_for_upcoming: 80
+
+# Saved logistic used by scan / tick when present.
+model_path: data/model_logistic.joblib
